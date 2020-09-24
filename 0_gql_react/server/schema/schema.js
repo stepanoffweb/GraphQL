@@ -13,7 +13,7 @@ const MovieType = new GraphQLObjectType({
         isWatched: { type: new GraphQLNonNull(GraphQLBoolean) },
         director: {
             type: DirectorType,
-            resolve({directorId}, args) {
+            resolve({ directorId }, args) {
                 return Directors.findById(directorId)
             }
         }
@@ -92,10 +92,10 @@ const Mutation = new GraphQLObjectType({
             type: DirectorType,
             args: { id: {type: GraphQLID}, name: {type: new GraphQLNonNull(GraphQLString)}, age: {type: new GraphQLNonNull(GraphQLInt)} },
 
-            resolve(parent, args) {
+            resolve(parent, { id, name, age }) {
                 return Directors.findByIdAndUpdate(
-                    args.id,
-                    {$set: {name: args.name, age: args.age} },
+                    id,
+                    {$set: {name, age} },
                     {new: true}
                 )
             }
@@ -122,14 +122,16 @@ const Query = new GraphQLObjectType({
         },
         movies: {
             type: new GraphQLList(MovieType),
-            resolve(parent, args) {
-                return Movies.find({})
+            args: {name: {type: GraphQLString}},
+            resolve(parent, { name }) {
+                return Movies.find({name: { $regex: name, $options: "i" }})
             }
         },
         directors: {
             type: new GraphQLList(DirectorType),
-            resolve(parent, args) {
-                return Directors.find({})
+            args: {name: {type: GraphQLString}},
+            resolve(parent, { name }) {
+                return Directors.find({name: { $regex: name, $options: "i" }})
             }
         }
     }

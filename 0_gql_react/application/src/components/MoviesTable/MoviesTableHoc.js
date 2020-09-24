@@ -5,4 +5,10 @@ import { graphql } from 'react-apollo'
 import { styles } from './styles';
 import { moviesQuery } from './queries'
 
-export default compose(withStyles(styles), graphql(moviesQuery));
+const withGraphQL = graphql(moviesQuery, {
+    options: ({ name = '' }) => ({
+        variables: { name }
+    })
+})
+
+export default compose(withStyles(styles), withGraphQL);
